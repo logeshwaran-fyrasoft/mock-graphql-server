@@ -1,5 +1,6 @@
 import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 
 // -----------------------------------------------------------------------
 // This is IN-MEMORY mutable state — it simulates "the database".
@@ -93,7 +94,11 @@ const resolvers = {
   },
 };
 
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  plugins: [ApolloServerPluginLandingPageLocalDefault({ embed: true })],
+});
 
 const PORT = process.env.PORT || 4000;
 
