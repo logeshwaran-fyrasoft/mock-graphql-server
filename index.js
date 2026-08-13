@@ -4,7 +4,7 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 
 // -----------------------------------------------------------------------
 // This is IN-MEMORY mutable state — it simulates "the database".
-// When we run the `updateHeroTitle` mutation, this changes.
+// When we run a mutation, this changes.
 // That's how we'll simulate "content changed in the backend" for the
 // ISR revalidation demo, without needing a real database.
 // -----------------------------------------------------------------------
@@ -72,10 +72,16 @@ const typeDefs = `#graphql
 
   type Mutation {
     """
-    Simulates the backend team changing homepage content.
-    Use this to demo ISR staleness + revalidation.
+    Simulates the backend team changing Hero content.
+    Use this to demo TIME-BASED ISR staleness + revalidation.
     """
     updateHeroTitle(title: String!): Homepage
+
+    """
+    Simulates the backend team changing Pooja Essentials content.
+    Use this to demo ON-DEMAND ISR revalidation specifically.
+    """
+    updatePoojaEssentialTitle(title: String!): Homepage
   }
 `;
 
@@ -88,6 +94,13 @@ const resolvers = {
       state.hero.title = title;
       state.lastUpdated = new Date().toISOString();
       console.log(`\n[mock-backend] Hero title changed to: "${title}"`);
+      console.log(`[mock-backend] lastUpdated: ${state.lastUpdated}\n`);
+      return state;
+    },
+    updatePoojaEssentialTitle: (_parent, { title }) => {
+      state.poojaEssentials[0].title = title;
+      state.lastUpdated = new Date().toISOString();
+      console.log(`\n[mock-backend] Pooja Essential title changed to: "${title}"`);
       console.log(`[mock-backend] lastUpdated: ${state.lastUpdated}\n`);
       return state;
     },
@@ -118,10 +131,17 @@ console.log(`query {
     lastUpdated
   }
 }\n`);
-console.log(`Try this mutation to simulate a content change:\n`);
+console.log(`Try this mutation to simulate a Hero content change:\n`);
 console.log(`mutation {
   updateHeroTitle(title: "NEW OFFER: Flat 20% Off This Week!") {
     hero { title }
+    lastUpdated
+  }
+}\n`);
+console.log(`Try this mutation to simulate a Pooja Essentials content change:\n`);
+console.log(`mutation {
+  updatePoojaEssentialTitle(title: "NEW: Sandalwood Incense Sticks") {
+    poojaEssentials { title }
     lastUpdated
   }
 }\n`);
